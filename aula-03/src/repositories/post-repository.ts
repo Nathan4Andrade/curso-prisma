@@ -1,48 +1,31 @@
-import { Post } from "@prisma/client";
-import db from "../database/database";
+import { Posts } from "@prisma/client";
+import prisma from "../database/database";
 
-const TABLE_NAME = "posts";
-
-export type CreatePost = Omit<Post, "id">
+export type CreatePost = Omit<Posts, "id">;
 
 async function getPosts() {
-  const result = await db.query<Post>(`
-    SELECT * FROM ${TABLE_NAME} 
-  `);
-
-  return result.rows;
+  const posts = await prisma.posts.findMany();
+  return posts;
 }
 
 async function getPost(id: number) {
-  const result = await db.query<Post>(`
-    SELECT * FROM ${TABLE_NAME} WHERE id = $1
-  `, [id]);
-
-  return result.rows;
+  const post = await prisma.posts.findUnique({ where: { id } });
+  return post;
 }
 
 async function createPost(post: CreatePost) {
-  const { username, title, body } = post;
-  const result = await db.query<Post>(`
-    INSERT INTO ${TABLE_NAME} (username, title, body) VALUES ($1, $2, $3)
-  `, [username, title, body]);
-
-  return result.rowCount;
+  return prisma.posts.create({ data: post });
 }
 
 async function deletePost(id: number) {
-  const result = await db.query<Post>(`
-    DELETE FROM ${TABLE_NAME} WHERE id = $1
-  `, [id]);
-
-  return result.rowCount;
+  return prisma.posts.delete({ where: { id } });
 }
 
 const postRepository = {
   getPost,
   getPosts,
   createPost,
-  deletePost
-}
+  deletePost,
+};
 
 export default postRepository;
