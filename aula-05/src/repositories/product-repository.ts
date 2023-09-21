@@ -5,13 +5,14 @@ const TABLE_NAME = "products";
 
 async function getProducts() {
   return await prisma.product.findMany();
+}
 
 async function getProduct(id: number) {
-  // TODO
+  return await prisma.product.findUnique({ where: { id } });
 }
 
 async function createProduct(product: Product) {
-  // TODO
+  await prisma.product.create({ data: product });
 }
 
 const productRepository = {
